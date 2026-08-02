@@ -64,6 +64,16 @@ Produces in `build/libs/`:
 
 Do **not** upload `-dev` or `-sources` jars as the primary file.
 
+## 4a. Where the copy lives
+
+| Field | Source | Notes |
+|---|---|---|
+| Modrinth **project** description | [MODRINTH.md](MODRINTH.md) | Paste everything below the divider. Header comment is a pre-publish checklist. |
+| Modrinth **version** changelog | `changelogs/<version>.md` | Same file the GitHub release workflow uses as release notes — one source, no drift. |
+
+Write a new `changelogs/<version>.md` for every release. `release.yml` fails over to
+auto-generated notes if it's missing, which reads poorly on a listing.
+
 ## 5. Listing metadata
 
 - **Minecraft:** 26.2 · **Loader:** Fabric · **Environment:** client-side only
