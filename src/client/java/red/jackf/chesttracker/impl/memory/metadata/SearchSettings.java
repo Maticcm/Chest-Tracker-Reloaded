@@ -6,7 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import red.jackf.chesttracker.api.memory.counting.StackMergeMode;
 import red.jackf.chesttracker.impl.util.ModCodecs;
-import red.jackf.jackfredlib.api.base.codecs.JFLCodecs;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.codecs.JFLCodecs;
 
 import java.util.ArrayList;
 import java.util.List;

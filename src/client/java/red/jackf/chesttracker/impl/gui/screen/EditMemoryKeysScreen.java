@@ -6,9 +6,10 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.input.MouseButtonEvent;
 import red.jackf.chesttracker.impl.gui.GuiConstants;
 import red.jackf.chesttracker.impl.gui.widget.DragHandleWidget;
 import red.jackf.chesttracker.impl.gui.widget.HoldToConfirmButton;
@@ -27,8 +28,8 @@ public class EditMemoryKeysScreen extends BaseUtilScreen {
     private static final int NAME_BOX_MARGIN = 1;
     private final Screen parent;
     private final MemoryBankView bankView;
-    private final Map<ResourceLocation, EditBox> editBoxes = new HashMap<>();
-    private final Map<ResourceLocation, DragHandleWidget> dragHandles = new HashMap<>();
+    private final Map<Identifier, EditBox> editBoxes = new HashMap<>();
+    private final Map<Identifier, DragHandleWidget> dragHandles = new HashMap<>();
 
     private boolean firstLoad = false;
     private boolean scheduleRebuild = false;
@@ -49,7 +50,7 @@ public class EditMemoryKeysScreen extends BaseUtilScreen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override
@@ -65,7 +66,7 @@ public class EditMemoryKeysScreen extends BaseUtilScreen {
         final int workingWidth = this.menuWidth - 2 * GuiConstants.MARGIN;
         final int spacing = GuiConstants.SMALL_MARGIN;
         final int startY = this.top + CONTENT_TOP;
-        final List<ResourceLocation> keys = bankView.keys();
+        final List<Identifier> keys = bankView.keys();
 
         for (var index = 0; index < keys.size(); index++) {
             var key = keys.get(index);
@@ -99,7 +100,7 @@ public class EditMemoryKeysScreen extends BaseUtilScreen {
                             bankView.metadata().getVisualSettings().getOrCreateIcon(key),
                             x,
                             y,
-                            button -> Minecraft.getInstance().setScreen(new SelectorScreen<>(
+                            button -> Minecraft.getInstance().gui.setScreen(new SelectorScreen<>(
                                     translatable("chesttracker.gui.editMemoryKeys.setIcon"),
                                     this,
                                     GuiConstants.DEFAULT_ICON_ORDER,
@@ -174,12 +175,15 @@ public class EditMemoryKeysScreen extends BaseUtilScreen {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         boolean anyTrue = false;
         for (DragHandleWidget widget : this.dragHandles.values()) {
-            anyTrue |= widget.mouseReleased(mouseX, mouseY, button);
+            anyTrue |= widget.mouseReleased(event);
         }
         if (anyTrue) return true;
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 }

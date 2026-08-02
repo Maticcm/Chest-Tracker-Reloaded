@@ -3,31 +3,39 @@ package red.jackf.chesttracker.impl.gui.widget;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 import red.jackf.chesttracker.impl.config.ChestTrackerConfig;
 import red.jackf.chesttracker.impl.gui.GuiConstants;
 import red.jackf.chesttracker.impl.util.GuiUtil;
 import red.jackf.chesttracker.impl.util.Strings;
-import red.jackf.whereisit.api.SearchRequest;
-import red.jackf.whereisit.client.api.events.SearchInvoker;
-import red.jackf.whereisit.client.api.events.SearchRequestPopulator;
+import red.jackf.chesttracker.impl.search.SearchRequest;
+import red.jackf.chesttracker.impl.search.SearchInvoker;
+import red.jackf.chesttracker.impl.search.SearchRequestPopulator;
 
 import java.util.Collections;
 import java.util.List;
 
 public class ItemListWidget extends AbstractWidget {
-    private static final ResourceLocation BACKGROUND_SPRITE = GuiUtil.sprite("widgets/slot_background");
-    private static final ItemStack DUMMY_ITEM_FOR_COUNT = new ItemStack(Items.EMERALD);
+    private static final Identifier BACKGROUND_SPRITE = GuiUtil.sprite("widgets/slot_background");
+    // Built lazily: ItemStacks cannot be constructed before item components are bound.
+    private static ItemStack dummyItemForCount = null;
+
+    private static ItemStack dummyItemForCount() {
+        if (dummyItemForCount == null) dummyItemForCount = new ItemStack(Items.EMERALD);
+        return dummyItemForCount;
+    }
 
     private final int gridWidth;
     private final int gridHeight;
@@ -68,26 +76,28 @@ public class ItemListWidget extends AbstractWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
         var items = getOffsetItems();
         int x = (int) ((mouseX - getX()) / GuiConstants.GRID_SLOT_SIZE);
         int y = (int) ((mouseY - getY()) / GuiConstants.GRID_SLOT_SIZE);
         int index = (y * gridWidth) + x;
         if (index >= items.size()) return;
         var request = new SearchRequest();
-        SearchRequestPopulator.addItemStack(request, items.get(index), Screen.hasShiftDown() ? SearchRequestPopulator.Context.FAVOURITE : SearchRequestPopulator.Context.INVENTORY_PRECISE);
+        SearchRequestPopulator.addItemStack(request, items.get(index), Minecraft.getInstance().hasShiftDown() ? SearchRequestPopulator.Context.FAVOURITE : SearchRequestPopulator.Context.INVENTORY_PRECISE);
         SearchInvoker.doSearch(request);
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.blitSprite(RenderType::guiTextured, BACKGROUND_SPRITE, getX(), getY(), getWidth(), getHeight()); // background
+    protected void extractWidgetRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_SPRITE, getX(), getY(), getWidth(), getHeight()); // background
         this.renderItems(graphics); // item models
         this.renderItemDecorations(graphics); // stack size and durability
         this.renderAdditional(graphics, mouseX, mouseY); // tooltips
     }
 
-    private void renderItems(GuiGraphics graphics) {
+    private void renderItems(GuiGraphicsExtractor graphics) {
         var items = getOffsetItems();
         // background
         for (int i = 0; i < (gridWidth * gridHeight); i++) {
@@ -95,7 +105,7 @@ public class ItemListWidget extends AbstractWidget {
             var y = this.getY() + GuiConstants.GRID_SLOT_SIZE * (i / gridWidth);
             if (i < items.size()) {
                 var item = items.get(i);
-                graphics.renderItem(item, x + 1, y + 1); // Item
+                graphics.item(item, x + 1, y + 1); // Item
             }
         }
     }
@@ -110,36 +120,36 @@ public class ItemListWidget extends AbstractWidget {
         return Pair.of(textScale, currentScale);
     }
 
-    private void renderItemDecorations(GuiGraphics graphics) {
+    private void renderItemDecorations(GuiGraphicsExtractor graphics) {
         var items = getOffsetItems();
         for (int i = 0; i < items.size(); i++) {
             ItemStack item = items.get(i);
             int offset = -GuiConstants.GRID_SLOT_SIZE + 2;
 
             // move to correct slot on screen
-            graphics.pose().pushPose();
+            graphics.pose().pushMatrix();
             int bottomRightX = this.getX() + GuiConstants.GRID_SLOT_SIZE * ((i % gridWidth) + 1);
             int bottomRightY = this.getY() + GuiConstants.GRID_SLOT_SIZE * ((i / gridWidth) + 1);
-            graphics.pose().translate(bottomRightX - 1, bottomRightY - 1, 0);
+            graphics.pose().translate(bottomRightX - 1, bottomRightY - 1);
 
             // durability, scaled normally
-            graphics.renderItemDecorations(Minecraft.getInstance().font, item, offset, offset, "");
+            graphics.itemDecorations(Minecraft.getInstance().font, item, offset, offset, "");
 
             // scale down for text
             Pair<Integer, Integer> scales = getScales();
             int textScale = scales.getFirst();
             int guiScale = scales.getSecond();
             float scaleFactor = (float) textScale / guiScale;
-            graphics.pose().scale(scaleFactor, scaleFactor, 1f);
+            graphics.pose().scale(scaleFactor, scaleFactor);
 
             // render count text scaled down
             String text = Strings.magnitude(item.getCount(), 0);
-            graphics.renderItemDecorations(Minecraft.getInstance().font, DUMMY_ITEM_FOR_COUNT, offset, offset, text); // Count
-            graphics.pose().popPose();
+            graphics.itemDecorations(Minecraft.getInstance().font, dummyItemForCount(), offset, offset, text); // Count
+            graphics.pose().popMatrix();
         }
     }
 
-    private void renderAdditional(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderAdditional(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         var items = getOffsetItems();
         if (!this.isHovered()) return;
         var x = (mouseX - getX()) / GuiConstants.GRID_SLOT_SIZE;
@@ -156,10 +166,10 @@ public class ItemListWidget extends AbstractWidget {
             if (stack.getCount() > 999) lines.add(Component.literal(Strings.commaSeparated(stack.getCount()))
                     .withStyle(ChatFormatting.GREEN));
             var image = stack.getTooltipImage();
-            graphics.pose().pushPose();
-            graphics.pose().translate(0, 0, 150f);
-            graphics.renderTooltip(Minecraft.getInstance().font, lines, image, mouseX, mouseY);
-            graphics.pose().popPose();
+            // Previously this pushed a +150 Z translation to lift the tooltip above the grid.
+            // 26.x has no Z in the 2D pose stack, and setTooltipForNextFrame is drawn in its own
+            // late pass, so the hoist is no longer needed.
+            graphics.setTooltipForNextFrame(Minecraft.getInstance().font, lines, image, mouseX, mouseY);
         }
     }
 

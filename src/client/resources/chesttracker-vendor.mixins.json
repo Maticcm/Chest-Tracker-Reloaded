@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "red.jackf.chesttracker.vendor.jackfredlib.client.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "gps.GuiAccessor",
+    "gps.MinecraftServerAccessor",
+    "gps.PlayerTabOverlayAccessor",
+    "gps.RealmsConnectMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

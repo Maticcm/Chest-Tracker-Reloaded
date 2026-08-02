@@ -6,7 +6,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -21,9 +21,9 @@ import red.jackf.chesttracker.api.providers.context.ScreenCloseContext;
 import red.jackf.chesttracker.api.providers.context.ScreenOpenContext;
 import red.jackf.chesttracker.api.providers.defaults.DefaultProvider;
 import red.jackf.chesttracker.impl.ChestTracker;
-import red.jackf.jackfredlib.client.api.gps.Coordinate;
-import red.jackf.jackfredlib.client.api.gps.ScoreboardSnapshot;
-import red.jackf.whereisit.api.search.ConnectedBlocksGrabber;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.Coordinate;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.ScoreboardSnapshot;
+import red.jackf.chesttracker.impl.search.ConnectedBlocksGrabber;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,24 +34,33 @@ import java.util.stream.Stream;
  * Provider for Hypixel SMP and Hypixel Skyblock.
  */
 public class HypixelProvider extends ServerProvider {
-    public static final ResourceLocation SKYBLOCK_PRIVATE_ISLAND = ResourceLocation.fromNamespaceAndPath("hypixel", "skyblock_private");
-    public static final ResourceLocation SKYBLOCK_ENDER_CHEST = ResourceLocation.fromNamespaceAndPath("hypixel", "skyblock_ender_chest");
-    public static final ResourceLocation SKYBLOCK_BACKBACKS = ResourceLocation.fromNamespaceAndPath("hypixel", "skyblock_backpacks");
-    public static final ResourceLocation SKYBLOCK_SACKS = ResourceLocation.fromNamespaceAndPath("hypixel", "skyblock_sacks");
-    public static final ResourceLocation SKYBLOCK_VAULT = ResourceLocation.fromNamespaceAndPath("hypixel", "skyblock_vault");
+    public static final Identifier SKYBLOCK_PRIVATE_ISLAND = Identifier.fromNamespaceAndPath("hypixel", "skyblock_private");
+    public static final Identifier SKYBLOCK_ENDER_CHEST = Identifier.fromNamespaceAndPath("hypixel", "skyblock_ender_chest");
+    public static final Identifier SKYBLOCK_BACKBACKS = Identifier.fromNamespaceAndPath("hypixel", "skyblock_backpacks");
+    public static final Identifier SKYBLOCK_SACKS = Identifier.fromNamespaceAndPath("hypixel", "skyblock_sacks");
+    public static final Identifier SKYBLOCK_VAULT = Identifier.fromNamespaceAndPath("hypixel", "skyblock_vault");
 
-    private static final List<MemoryKeyIcon> ICONS = Streams.concat(Stream.of(
-            new MemoryKeyIcon(SKYBLOCK_PRIVATE_ISLAND, Items.OAK_SAPLING.getDefaultInstance()),
-            new MemoryKeyIcon(SKYBLOCK_ENDER_CHEST, Items.ENDER_CHEST.getDefaultInstance()),
-            new MemoryKeyIcon(SKYBLOCK_BACKBACKS, Items.SHULKER_BOX.getDefaultInstance()),
-            new MemoryKeyIcon(SKYBLOCK_SACKS, Items.BUNDLE.getDefaultInstance()),
-            new MemoryKeyIcon(SKYBLOCK_VAULT, Items.IRON_DOOR.getDefaultInstance())
-    ), ProviderUtils.getDefaultIcons().stream()).toList();
+    // 26.x binds item components after mod client-init runs, so these ItemStacks cannot be
+    // built in a static initialiser - see DefaultIconsImpl for the same fix.
+    private static List<MemoryKeyIcon> icons = null;
+
+    private static List<MemoryKeyIcon> icons() {
+        if (icons == null) {
+            icons = Streams.concat(Stream.of(
+                    new MemoryKeyIcon(SKYBLOCK_PRIVATE_ISLAND, Items.OAK_SAPLING.getDefaultInstance()),
+                    new MemoryKeyIcon(SKYBLOCK_ENDER_CHEST, Items.ENDER_CHEST.getDefaultInstance()),
+                    new MemoryKeyIcon(SKYBLOCK_BACKBACKS, Items.SHULKER_BOX.getDefaultInstance()),
+                    new MemoryKeyIcon(SKYBLOCK_SACKS, Items.BUNDLE.getDefaultInstance()),
+                    new MemoryKeyIcon(SKYBLOCK_VAULT, Items.IRON_DOOR.getDefaultInstance())
+            ), ProviderUtils.getDefaultIcons().stream()).toList();
+        }
+        return icons;
+    }
 
     private boolean isOnSMP = false;
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ChestTracker.id("hypixel");
     }
 
@@ -63,7 +72,7 @@ public class HypixelProvider extends ServerProvider {
 
     @Override
     public List<MemoryKeyIcon> getMemoryKeyIcons() {
-        return ICONS;
+        return icons();
     }
 
     // Detects joining SMP servers.
@@ -184,7 +193,7 @@ public class HypixelProvider extends ServerProvider {
     }
 
     @Override
-    public Optional<ResourceLocation> getPlayersCurrentKey(Level level, LocalPlayer player) {
+    public Optional<Identifier> getPlayersCurrentKey(Level level, LocalPlayer player) {
         if (Skyblock.isOnPrivateIsland()) {
             return Optional.of(SKYBLOCK_PRIVATE_ISLAND);
         } else if (this.isOnSMP) {

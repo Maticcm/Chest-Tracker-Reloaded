@@ -8,7 +8,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import red.jackf.chesttracker.impl.gui.invbutton.position.ButtonPosition;
 import red.jackf.chesttracker.impl.util.Constants;
 import red.jackf.chesttracker.impl.util.FileUtil;
-import red.jackf.jackfredlib.api.base.codecs.JFLCodecs;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.codecs.JFLCodecs;
 
 import java.nio.file.Path;
 import java.util.HashMap;

@@ -1,8 +1,7 @@
 package red.jackf.chesttracker.impl.compat.mods.jade;
 
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import red.jackf.chesttracker.api.memory.Memory;
@@ -15,8 +14,8 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.JadeIds;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.theme.IThemeHelper;
-import snownee.jade.api.ui.IElement;
-import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.ui.Element;
+import snownee.jade.api.ui.JadeUI;
 import snownee.jade.api.ui.ScreenDirection;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class JadeClientContentsPreview implements IBlockComponentProvider {
     public static JadeClientContentsPreview INSTANCE = new JadeClientContentsPreview();
     private JadeClientContentsPreview() {}
 
-    public static final ResourceLocation ID = ChestTracker.id("memory_preview");
+    public static final Identifier ID = ChestTracker.id("memory_preview");
 
     private static void possiblyAddItems(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config, Memory memory) {
         if (config.get(JadeIds.UNIVERSAL_ITEM_STORAGE) &&
@@ -37,7 +36,7 @@ public class JadeClientContentsPreview implements IBlockComponentProvider {
             return; // don't do it if jade is handling it
         if (config.get(JadeIds.MC_FURNACE)
                 && accessor.getBlock() instanceof AbstractFurnaceBlock &&
-                (accessor.getServerData().contains("furnace", Tag.TAG_LIST) // < 15.7.0
+                (accessor.getServerData().contains("furnace") // < 15.7.0
                 || accessor.getServerData().contains(JadeIds.MC_FURNACE.toString()))) // >=15.7.0
             return; // don't do furnaces if handled so progress still shows
 
@@ -46,11 +45,11 @@ public class JadeClientContentsPreview implements IBlockComponentProvider {
         int max = config.getInt(accessor.showDetails() ? JadeIds.UNIVERSAL_ITEM_STORAGE_DETAILED_AMOUNT : JadeIds.UNIVERSAL_ITEM_STORAGE_NORMAL_AMOUNT);
         int perLine = config.getInt(JadeIds.UNIVERSAL_ITEM_STORAGE_ITEMS_PER_LINE);
 
-        List<List<IElement>> lines = new ArrayList<>();
-        List<IElement> currentLine = new ArrayList<>(perLine);
+        List<List<Element>> lines = new ArrayList<>();
+        List<Element> currentLine = new ArrayList<>(perLine);
         for (int i = 0; i < max && i < stacks.size(); i++) {
             ItemStack item = stacks.get(i);
-            currentLine.add(IElementHelper.get().item(item));
+            currentLine.add(JadeUI.item(item));
             if (currentLine.size() == perLine) {
                 lines.add(currentLine);
                 currentLine = new ArrayList<>(perLine);
@@ -80,7 +79,7 @@ public class JadeClientContentsPreview implements IBlockComponentProvider {
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 }

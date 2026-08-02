@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.chesttracker.impl.util.I18n;
-import red.jackf.jackfredlib.api.base.codecs.JFLCodecs;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.codecs.JFLCodecs;
 
 import java.util.Optional;
 

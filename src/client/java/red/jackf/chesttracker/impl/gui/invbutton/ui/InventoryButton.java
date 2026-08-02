@@ -1,9 +1,10 @@
 package red.jackf.chesttracker.impl.gui.invbutton.ui;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -11,9 +12,10 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.chesttracker.api.gui.ScreenBlacklist;
@@ -109,7 +111,7 @@ public class InventoryButton extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if (!this.isDragging) {
             this.applyPosition(false);
             this.showExtraButtons(alwaysShowExtra() || this.isHovered() || this.isExpandedHover(mouseX, mouseY));
@@ -119,11 +121,11 @@ public class InventoryButton extends AbstractWidget {
 
         // NOTE: texture is 11x11 while button is 9x9
 
-        ResourceLocation texture = TEXTURE.get(this.isActive(), this.isHoveredOrFocused());
-        graphics.blitSprite(RenderType::guiTextured, texture, this.getX() - 1, this.getY() - 1, IMAGE_SIZE, IMAGE_SIZE);
+        Identifier texture = TEXTURE.get(this.isActive(), this.isHoveredOrFocused());
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture, this.getX() - 1, this.getY() - 1, IMAGE_SIZE, IMAGE_SIZE);
 
         for (AbstractWidget secondary : this.secondaryButtons) {
-            secondary.render(graphics, mouseX, mouseY, partialTick);
+            secondary.extractRenderState(graphics, mouseX, mouseY, partialTick);
         }
     }
 
@@ -195,19 +197,25 @@ public class InventoryButton extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (this.isMouseOver(mouseX, mouseY)) {
             this.canDrag = true;
             this.mouseDownStart = Util.getMillis();
         }
         for (AbstractWidget secondary : this.secondaryButtons) {
-            if (secondary.mouseClicked(mouseX, mouseY, button)) return true;
+            if (secondary.mouseClicked(event, doubleClick)) return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (this.canDrag && Util.getMillis() - mouseDownStart >= MS_BEFORE_DRAG_START) {
             this.isDragging = true;
             var newPos = PositionUtils.calculate(parent, (int) mouseX, (int) mouseY);
@@ -224,7 +232,10 @@ public class InventoryButton extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         this.canDrag = false;
         this.mouseDownStart = -1;
 

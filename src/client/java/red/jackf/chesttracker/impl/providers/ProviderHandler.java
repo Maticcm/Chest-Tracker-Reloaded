@@ -12,7 +12,7 @@ import red.jackf.chesttracker.api.providers.ServerProvider;
 import red.jackf.chesttracker.impl.events.AfterPlayerPlaceBlock;
 import red.jackf.chesttracker.impl.memory.MemoryBankAccessImpl;
 import red.jackf.chesttracker.impl.util.CachedClientBlockSource;
-import red.jackf.jackfredlib.client.api.gps.Coordinate;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.Coordinate;
 
 import java.util.Comparator;
 import java.util.Optional;

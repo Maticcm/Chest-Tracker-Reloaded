@@ -6,7 +6,7 @@ import red.jackf.chesttracker.api.memory.MemoryBankAccess;
 import red.jackf.chesttracker.impl.memory.metadata.Metadata;
 import red.jackf.chesttracker.impl.storage.ConnectionSettings;
 import red.jackf.chesttracker.impl.storage.Storage;
-import red.jackf.jackfredlib.client.api.gps.Coordinate;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.Coordinate;
 
 import java.util.HashMap;
 import java.util.Optional;

@@ -9,7 +9,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import red.jackf.chesttracker.impl.config.ChestTrackerConfig;
 import red.jackf.chesttracker.impl.gui.widget.CustomEditBox;
@@ -34,7 +34,7 @@ public class SearchablesUtil {
                         .getPath())))
                 .component(SearchableComponent.create("tag", ItemStacks::tagPredicate))
                 .component(SearchableComponent.create("mod", stack -> Optional.of(BuiltInRegistries.ITEM.getKey(stack.getItem()))
-                        .map(ResourceLocation::getNamespace)))
+                        .map(Identifier::getNamespace)))
                 .component(SearchableComponent.create("enchantment", ItemStacks::enchantmentPredicate))
                 .component(SearchableComponent.create("potion", ItemStacks::potionOrEffectPredicate))
                 .build();
@@ -68,7 +68,7 @@ public class SearchablesUtil {
         );
 
         var formatter = SearchablesUtil.getFormatter();
-        box.setFormatter(formatter);
+        box.addFormatter(formatter::apply);
         box.addResponder(formatter);
 
         box.addResponder(callback);
@@ -90,6 +90,6 @@ public class SearchablesUtil {
 
     public static AbstractWidget getWrappedAutocomplete(EditBox search) {
         //noinspection unchecked
-        return new WidgetZOffsetWrapper<>(((AutoCompletingEditBox<ItemStack>) search).autoComplete(), 250);
+        return new WidgetZOffsetWrapper<>(((AutoCompletingEditBox<ItemStack>) search).autoComplete());
     }
 }

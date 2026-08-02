@@ -1,5 +1,6 @@
 {
   "key.chesttracker.open_gui": "Open Chest Tracker GUI",
+  "key.category.chesttracker.main": "Chest Tracker",
 
   "chesttracker.title": "Chest Tracker",
   "chesttracker.compatibility.brand": "Client-side preview via %s",

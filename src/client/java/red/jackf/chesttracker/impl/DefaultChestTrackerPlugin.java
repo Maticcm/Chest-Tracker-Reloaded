@@ -14,12 +14,11 @@ import red.jackf.chesttracker.api.memory.CommonKeys;
 import red.jackf.chesttracker.api.providers.*;
 import red.jackf.chesttracker.api.providers.context.ScreenCloseContext;
 import red.jackf.chesttracker.api.providers.defaults.*;
-import red.jackf.chesttracker.impl.compat.mods.ExpandedStorageIntegration;
 import red.jackf.chesttracker.impl.compat.mods.ShareEnderChestIntegration;
 import red.jackf.chesttracker.impl.compat.servers.hypixel.HypixelProvider;
 import red.jackf.chesttracker.impl.gui.util.CTTitleOverrideDuck;
-import red.jackf.jackfredlib.api.base.ResultHolder;
-import red.jackf.whereisit.api.search.ConnectedBlocksGrabber;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.ResultHolder;
+import red.jackf.chesttracker.impl.search.ConnectedBlocksGrabber;
 
 import java.util.List;
 import java.util.Set;
@@ -96,9 +95,7 @@ public class DefaultChestTrackerPlugin implements ChestTrackerPlugin {
             return ResultHolder.pass();
         });
 
-        if (FabricLoader.getInstance().isModLoaded("expandedstorage")) {
-            ExpandedStorageIntegration.setup();
-        }
+        // Expanded Storage integration removed: no 26.x build exists upstream. See PORTING.md.
 
         ShareEnderChestIntegration.setup();
     }

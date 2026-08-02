@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import red.jackf.chesttracker.api.EventPhases;
-import red.jackf.jackfredlib.api.base.ResultHolder;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.ResultHolder;
 
 /**
  * Gets the custom name of a container from a given screen.

@@ -3,7 +3,7 @@ package red.jackf.chesttracker.api.providers.defaults;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import red.jackf.chesttracker.api.ClientBlockSource;
@@ -14,9 +14,9 @@ import red.jackf.chesttracker.api.providers.context.BlockPlacedContext;
 import red.jackf.chesttracker.api.providers.context.ScreenCloseContext;
 import red.jackf.chesttracker.api.providers.context.ScreenOpenContext;
 import red.jackf.chesttracker.impl.ChestTracker;
-import red.jackf.jackfredlib.api.base.ResultHolder;
-import red.jackf.jackfredlib.client.api.gps.Coordinate;
-import red.jackf.whereisit.api.search.ConnectedBlocksGrabber;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.ResultHolder;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.Coordinate;
+import red.jackf.chesttracker.impl.search.ConnectedBlocksGrabber;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +38,7 @@ public class DefaultProvider extends ServerProvider {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ChestTracker.id("default_provider");
     }
 
@@ -88,7 +88,7 @@ public class DefaultProvider extends ServerProvider {
 
             if (itemComponent != null) {
                 // List<ItemStack> itemList = Streams.of(itemComponent.nonEmptyItemsCopy()).toList();
-                List<ItemStack> itemList = itemComponent.nonEmptyStream().toList();
+                List<ItemStack> itemList = itemComponent.nonEmptyItemCopyStream().toList();
                 if (!itemList.isEmpty()) items = itemList;
             }
 

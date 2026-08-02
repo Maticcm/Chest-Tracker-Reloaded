@@ -1,16 +1,20 @@
 package red.jackf.chesttracker.impl.gui.screen;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.CharacterEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.chesttracker.impl.ChestTracker;
@@ -65,7 +69,7 @@ public class ChestTrackerScreen extends Screen {
     @Nullable
     private ResizeWidget resize = null;
     private VerticalScrollWidget scroll;
-    private ResourceLocation currentMemoryKey;
+    private Identifier currentMemoryKey;
     private List<ItemStack> items = Collections.emptyList();
 
     public ChestTrackerScreen(@Nullable Screen parent) {
@@ -81,7 +85,7 @@ public class ChestTrackerScreen extends Screen {
 
         // ask for a memory to be loaded if not available
         if (bank == null) {
-            Minecraft.getInstance().setScreen(new MemoryBankManagerScreen(parent, () -> new ChestTrackerScreen(this)));
+            Minecraft.getInstance().gui.setScreen(new MemoryBankManagerScreen(parent, () -> new ChestTrackerScreen(this)));
             return;
         }
 
@@ -160,7 +164,7 @@ public class ChestTrackerScreen extends Screen {
                         BUTTON_SIZE,
                         BUTTON_SIZE,
                         GuiUtil.twoSprite("mod_settings/button"),
-                        button -> Minecraft.getInstance().setScreen(ChestTrackerConfigScreenBuilder.build(this))))
+                        button -> Minecraft.getInstance().gui.setScreen(ChestTrackerConfigScreenBuilder.build(this))))
                 .setTooltip(Tooltip.create(translatable("chesttracker.gui.modSettings")));
 
         // change memory bank
@@ -225,7 +229,7 @@ public class ChestTrackerScreen extends Screen {
                 .sorted(Misc.bringToFront(bank.getMetadata()
                         .getVisualSettings()
                         .getKeyOrder())).toList();
-        Map<ResourceLocation, ItemButton> buttons = new HashMap<>();
+        Map<Identifier, ItemButton> buttons = new HashMap<>();
 
         for (int index = 0; index < todo.size(); index++) {
             var resloc = todo.get(index);
@@ -345,29 +349,34 @@ public class ChestTrackerScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float tickDelta) {
+    public void extractRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tickDelta) {
         this.itemList.setHideTooltip(this.search.isFocused() && ifSearchables(a -> a.isMouseOver(mouseX, mouseY)));
-        super.render(graphics, mouseX, mouseY, tickDelta); // widgets
-        graphics.drawString(this.font, this.title, left + TITLE_LEFT, top + TITLE_TOP, TextColours.getLabelColour(), false); // title
+        super.extractRenderState(graphics, mouseX, mouseY, tickDelta); // widgets
+        graphics.text(this.font, this.title, left + TITLE_LEFT, top + TITLE_TOP, TextColours.getLabelColour(), false); // title
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics graphics, int i, int j, float f) {
-        super.renderBackground(graphics, i, j, f);
-        graphics.blitSprite(RenderType::guiTextured, GuiUtil.BACKGROUND_SPRITE, left, top, menuWidth, menuHeight);
-        ifSearchables(() -> graphics.blitSprite(RenderType::guiTextured, GuiUtil.SEARCH_BAR_SPRITE, search.getX() - 2, search.getY() - 2, search.getWidth() + 4, search.getHeight()));
+    public void extractBackground(@NotNull GuiGraphicsExtractor graphics, int i, int j, float f) {
+        super.extractBackground(graphics, i, j, f);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtil.BACKGROUND_SPRITE, left, top, menuWidth, menuHeight);
+        ifSearchables(() -> graphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtil.SEARCH_BAR_SPRITE, search.getX() - 2, search.getY() - 2, search.getWidth() + 4, search.getHeight()));
     }
 
     @Override
-    public boolean charTyped(char codePoint, int modifiers) {
+    public boolean charTyped(CharacterEvent event) {
+        char codePoint = (char) event.codepoint();
+        int modifiers = 0;
         if (ignoreTextInput) {
             return false;
         }
-        return super.charTyped(codePoint, modifiers);
+        return super.charTyped(event);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
         this.ignoreTextInput = false;
         /*if (this.getFocused() == search) {
             if (keyCode == GLFW.GLFW_KEY_TAB) {
@@ -375,13 +384,16 @@ public class ChestTrackerScreen extends Screen {
                 return true;
             }
         }*/
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.search.isFocused() && ifSearchables(a -> a.mouseClicked(mouseX, mouseY, button))) return true;
-        return super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+        if (this.search.isFocused() && ifSearchables(a -> a.mouseClicked(event, doubleClick))) return true;
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
@@ -398,16 +410,19 @@ public class ChestTrackerScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (resize != null && resize.mouseReleased(mouseX, mouseY, button)) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+        if (resize != null && resize.mouseReleased(event)) {
             return true;
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override
@@ -416,16 +431,16 @@ public class ChestTrackerScreen extends Screen {
     }
 
     private void openMemoryManager(Button ignored) {
-        Minecraft.getInstance().setScreen(new MemoryBankManagerScreen(
+        Minecraft.getInstance().gui.setScreen(new MemoryBankManagerScreen(
                 () -> MemoryBankAccessImpl.INSTANCE.getLoadedInternal().isEmpty() ? parent : this,
                 // return to this screen unless the memories have been unloaded, in which case go to the parent
-                () -> Minecraft.getInstance().setScreen(this)
+                () -> Minecraft.getInstance().gui.setScreen(this)
         ));
     }
 
     private void openMemoryBankSettings(Button button) {
         MemoryBankAccessImpl.INSTANCE.getLoadedInternal().ifPresent(bank -> {
-            Minecraft.getInstance().setScreen(new EditMemoryBankScreen(
+            Minecraft.getInstance().gui.setScreen(new EditMemoryBankScreen(
                     this,
                     this::updateItems,
                     bank.getId()

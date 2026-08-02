@@ -1,13 +1,15 @@
 package red.jackf.chesttracker.impl.gui.widget;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.chesttracker.impl.util.GuiUtil;
@@ -15,7 +17,7 @@ import red.jackf.chesttracker.impl.util.GuiUtil;
 import java.util.function.Consumer;
 
 public class VerticalScrollWidget extends AbstractWidget {
-    private static final ResourceLocation BACKGROUND = GuiUtil.sprite("nine_patch/scroll_bar");
+    private static final Identifier BACKGROUND = GuiUtil.sprite("nine_patch/scroll_bar");
     private static final WidgetSprites HANDLE_TEXTURE = new WidgetSprites(GuiUtil.sprite("widgets/scroll_bar/handle"),
                                                                           GuiUtil.sprite("widgets/scroll_bar/handle_disabled"),
                                                                           GuiUtil.sprite("widgets/scroll_bar/handle"),
@@ -48,11 +50,11 @@ public class VerticalScrollWidget extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.blitSprite(RenderType::guiTextured, BACKGROUND, getX(), getY(), width, height);
+    protected void extractWidgetRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND, getX(), getY(), width, height);
 
         int handleY = (int) ((this.height - HANDLE_HEIGHT - 2 * INSET) * progress);
-        graphics.blitSprite(RenderType::guiTextured, disabled ? HANDLE_TEXTURE.disabled() : HANDLE_TEXTURE.enabled(),
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, disabled ? HANDLE_TEXTURE.disabled() : HANDLE_TEXTURE.enabled(),
                 this.getX() + INSET,
                 this.getY() + INSET + handleY,
                 HANDLE_WIDTH,
@@ -64,12 +66,15 @@ public class VerticalScrollWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (this.visible && !this.disabled && this.isWithinBounds(mouseX, mouseY) && button == 0) {
             this.scrolling = true;
             return true;
         } else {
-            return super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(event, doubleClick);
         }
     }
 
@@ -84,20 +89,26 @@ public class VerticalScrollWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (this.scrolling && button == 0) {
             var progress = (mouseY - this.getY() - INSET - HANDLE_HEIGHT / 2) / (this.getHeight() - 2 * INSET - HANDLE_HEIGHT);
             setProgress((float) progress);
             return true;
         } else {
-            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            return super.mouseDragged(event, dragX, dragY);
         }
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0) this.scrolling = false;
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     public void setProgress(float value) {

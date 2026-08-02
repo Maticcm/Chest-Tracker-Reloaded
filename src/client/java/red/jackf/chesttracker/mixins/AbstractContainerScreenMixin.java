@@ -1,6 +1,7 @@
 package red.jackf.chesttracker.mixins;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,16 +30,17 @@ public abstract class AbstractContainerScreenMixin implements CTButtonScreenDuck
     @Nullable
     private ScreenOpenContextImpl openContext = null;
 
+    // 26.x replaced the (x, y, button) input parameters with MouseButtonEvent records.
     @Inject(method = "mouseDragged", at = @At("HEAD"), cancellable = true)
-    private void tryDragInvButton(double mouseX, double mouseY, int button, double dragX, double dragY, CallbackInfoReturnable<Boolean> cir) {
-        if (this.ctButton != null && this.ctButton.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+    private void tryDragInvButton(MouseButtonEvent event, double dragX, double dragY, CallbackInfoReturnable<Boolean> cir) {
+        if (this.ctButton != null && this.ctButton.mouseDragged(event, dragX, dragY)) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "mouseReleased", at = @At("HEAD"), cancellable = true)
-    private void tryMouseReleaseInvButton(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (this.ctButton != null && this.ctButton.mouseReleased(mouseX, mouseY, button)) {
+    private void tryMouseReleaseInvButton(MouseButtonEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (this.ctButton != null && this.ctButton.mouseReleased(event)) {
             cir.setReturnValue(true);
         }
     }

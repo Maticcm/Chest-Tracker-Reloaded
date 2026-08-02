@@ -5,7 +5,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import red.jackf.chesttracker.api.ClientBlockSource;
-import red.jackf.jackfredlib.api.base.Memoizer;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.Memoizer;
 
 public class CachedClientBlockSource implements ClientBlockSource {
     private final Level level;

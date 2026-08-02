@@ -1,11 +1,13 @@
 package red.jackf.chesttracker.impl.gui.widget;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.chesttracker.impl.gui.util.TextColours;
@@ -52,8 +54,8 @@ public class StringSelectorWidget<T> extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.blitSprite(RenderType::guiTextured, GuiUtil.SEARCH_BAR_SPRITE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+    protected void extractWidgetRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtil.SEARCH_BAR_SPRITE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         int i = 0;
         var hoveredIndex = getHoveredIndex(mouseX, mouseY);
         lastHovered = null;
@@ -63,7 +65,7 @@ public class StringSelectorWidget<T> extends AbstractWidget {
             if (hovered) lastHovered = entry.getKey();
             var textColour = hovered ? TextColours.getSearchTermColour() : entry.getKey()
                     .equals(highlight) ? TextColours.getSearchKeyColour() : TextColours.getTextColour();
-            graphics.drawString(Minecraft.getInstance().font,
+            graphics.text(Minecraft.getInstance().font,
                     entry.getValue(),
                     this.getX() + 2 + (hovered ? 6 : 0),
                     this.getY() + 2 + ROW_HEIGHT * i,
@@ -73,7 +75,9 @@ public class StringSelectorWidget<T> extends AbstractWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
         if (lastHovered != null) onSelect.accept(lastHovered);
     }
 

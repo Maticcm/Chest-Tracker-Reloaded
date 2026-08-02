@@ -14,7 +14,7 @@ public interface InteractionTracker {
 
     /**
      * Get the player's current level. Usually present, unless the player is not in-game. Used by the default provider to
-     * get the correct Memory Key (<code>level.dimension().location()</code>).
+     * get the correct Memory Key (<code>level.dimension().identifier()</code>).
      *
      * @return An optional containing the player's current level
      */

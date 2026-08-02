@@ -7,12 +7,17 @@ import red.jackf.chesttracker.api.memory.CommonKeys;
 import red.jackf.chesttracker.api.providers.MemoryBuilder;
 import red.jackf.chesttracker.api.providers.MemoryKeyIcon;
 import red.jackf.chesttracker.api.providers.defaults.DefaultIcons;
+import red.jackf.chesttracker.impl.providers.DefaultIconsImpl;
 import red.jackf.chesttracker.api.providers.defaults.DefaultProviderScreenClose;
-import red.jackf.jackfredlib.api.base.ResultHolder;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.ResultHolder;
 
 public class ShareEnderChestIntegration {
     public static void setup() {
-        DefaultIcons.registerIconBelow(CommonKeys.ENDER_CHEST_KEY, new MemoryKeyIcon(CommonKeys.SHARE_ENDER_CHEST, Items.ENDER_EYE.getDefaultInstance()));
+        // Deferred: item components are not bound during client init in 26.x, so the ItemStack
+        // cannot be built here.
+        DefaultIconsImpl.registerDeferred(() -> DefaultIcons.registerIconBelow(
+                CommonKeys.ENDER_CHEST_KEY,
+                new MemoryKeyIcon(CommonKeys.SHARE_ENDER_CHEST, Items.ENDER_EYE.getDefaultInstance())));
 
         DefaultProviderScreenClose.EVENT.register((provider, context) -> {
             if (context.getScreen().getTitle().getContents() instanceof PlainTextContents.LiteralContents literal

@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.logging.log4j.Logger;
@@ -19,8 +19,8 @@ import red.jackf.chesttracker.impl.events.AfterPlayerDestroyBlock;
 import red.jackf.chesttracker.impl.memory.key.OverrideInfo;
 import red.jackf.chesttracker.impl.memory.metadata.IntegritySettings;
 import red.jackf.chesttracker.mixins.BlockEntityTypeAccessor;
-import red.jackf.jackfredlib.api.base.Memoizer;
-import red.jackf.jackfredlib.client.api.toasts.*;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.Memoizer;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.toasts.*;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -40,7 +40,7 @@ public class MemoryIntegrity {
     private static final List<Map.Entry<BlockPos, Memory>> currentEntryList = new ArrayList<>();
     private static long lastEntryCheckCompleteTick = -1L;
     private static int currentEntryKeyIndex = 0;
-    private static ResourceLocation currentMemoryKeyId = CommonKeys.OVERWORLD;
+    private static Identifier currentMemoryKeyId = CommonKeys.OVERWORLD;
     private static int lastEntryListIndex = 0;
     private static final Supplier<CustomToast> toast = Memoizer.of(() ->
             ToastBuilder.builder(ToastFormat.WHITE, Component.translatable("chesttracker.gui.editMemoryBank.integrity"))
@@ -67,7 +67,7 @@ public class MemoryIntegrity {
             }
         }));
 
-        ClientTickEvents.END_WORLD_TICK.register(level -> {
+        ClientTickEvents.END_LEVEL_TICK.register(level -> {
             MemoryBankImpl memoryBank = MemoryBankAccessImpl.INSTANCE.getLoadedInternal().orElse(null);
 
             if (memoryBank == null) {
@@ -80,7 +80,7 @@ public class MemoryIntegrity {
 
             // populate iteration list
             if (currentEntryList.isEmpty() && level.getGameTime() >= lastEntryCheckCompleteTick + TICKS_BETWEEN_ENTRY_REFILL) {
-                ArrayList<ResourceLocation> keys = new ArrayList<>(memoryBank.getMemoryKeys());
+                ArrayList<Identifier> keys = new ArrayList<>(memoryBank.getMemoryKeys());
 
                 if (keys.isEmpty()) return;
                 if (currentEntryKeyIndex >= keys.size()) currentEntryKeyIndex = 0;
@@ -150,7 +150,7 @@ public class MemoryIntegrity {
             // check if block is valid
             if (integrity.checkPeriodicallyForMissingBlocks) {
                 LocalPlayer player = Minecraft.getInstance().player;
-                ResourceLocation playerCurrentKey = ProviderUtils.getPlayersCurrentKey().orElse(null);
+                Identifier playerCurrentKey = ProviderUtils.getPlayersCurrentKey().orElse(null);
 
                 if (player != null // check if we can reasonably check for existence
                         && playerCurrentKey != null

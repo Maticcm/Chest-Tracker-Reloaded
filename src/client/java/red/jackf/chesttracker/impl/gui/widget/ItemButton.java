@@ -1,10 +1,11 @@
 package red.jackf.chesttracker.impl.gui.widget;
 
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.ActiveTextCollector;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -28,21 +29,23 @@ public class ItemButton extends Button {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         switch (background) {
-            case VANILLA -> super.renderWidget(graphics, mouseX, mouseY, partialTick);
-            case CUSTOM -> graphics.blitSprite(RenderType::guiTextured, this.highlighted || this.isHovered() ? TEXTURE.enabledFocused() : TEXTURE.enabled(),
+            // extractDefaultSprite, not super.extractWidgetRenderState: the latter is final on
+            // AbstractButton and calls back into extractContents, causing infinite recursion.
+            case VANILLA -> extractDefaultSprite(graphics);
+            case CUSTOM -> graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.highlighted || this.isHovered() ? TEXTURE.enabledFocused() : TEXTURE.enabled(),
                                            getX(),
                                            getY(),
                                            SIZE,
                                            SIZE);
         }
-        graphics.renderItem(stack, this.getX() + 2, this.getY() + 2);
+        graphics.item(stack, this.getX() + 2, this.getY() + 2);
     }
 
     @Override
-    public void renderString(@NotNull GuiGraphics graphics, @NotNull Font font, int color) {
-        // noop
+    protected void extractDefaultLabel(@NotNull ActiveTextCollector collector) {
+        // noop - this button draws an item, not a label
     }
 
     public enum Background {

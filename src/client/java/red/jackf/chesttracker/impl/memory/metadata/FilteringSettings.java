@@ -7,7 +7,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.AbstractChestBlock;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import red.jackf.jackfredlib.api.base.codecs.JFLCodecs;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.codecs.JFLCodecs;
 
 import java.util.Optional;
 import java.util.function.Predicate;

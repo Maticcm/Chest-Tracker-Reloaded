@@ -1,6 +1,8 @@
 package red.jackf.chesttracker.impl.gui;
 
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import red.jackf.chesttracker.impl.ChestTracker;
 import net.minecraft.client.Minecraft;
 import red.jackf.chesttracker.api.memory.MemoryKey;
 import red.jackf.chesttracker.api.providers.InteractionTracker;
@@ -8,7 +10,7 @@ import red.jackf.chesttracker.api.providers.ProviderUtils;
 import red.jackf.chesttracker.impl.config.ChestTrackerConfig;
 import red.jackf.chesttracker.impl.memory.MemoryBankAccessImpl;
 import red.jackf.chesttracker.impl.providers.ProviderHandler;
-import red.jackf.jackfredlib.client.api.gps.Coordinate;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,10 @@ import java.util.Optional;
 
 public class DeveloperOverlay {
     public static void setup() {
-        HudRenderCallback.EVENT.register((graphics, delta) -> {
+        // 26.x replaced HudRenderCallback with the HudElement registry; elements now extract
+        // render state rather than drawing immediately.
+        HudElementRegistry.attachElementAfter(VanillaHudElements.MISC_OVERLAYS,
+                ChestTracker.id("developer_overlay"), (graphics, deltaTracker) -> {
             var provider = ProviderHandler.INSTANCE.getCurrentProvider().orElse(null);
 
             if (!ChestTrackerConfig.INSTANCE.instance().debug.showDevHud) return;
@@ -50,7 +55,7 @@ public class DeveloperOverlay {
                     var source = InteractionTracker.INSTANCE.getLastBlockSource();
                     var sourceStr = source.map(blockSource -> blockSource.pos()
                             .toShortString() + "@" + blockSource.level()
-                            .dimension().location()).orElse("<none>");
+                            .dimension().identifier()).orElse("<none>");
                     lines.add("Location: " + sourceStr);
                 }, () -> lines.add("No memory bank loaded"));
             }
@@ -58,7 +63,7 @@ public class DeveloperOverlay {
 
             for (int i = 0; i < lines.size(); i++) {
                 var line = lines.get(i);
-                graphics.drawString(Minecraft.getInstance().font, line, 10, 10 + (9 * i), 0xFF_FFFFFF);
+                graphics.text(Minecraft.getInstance().font, line, 10, 10 + (9 * i), 0xFF_FFFFFF);
             }
         });
     }

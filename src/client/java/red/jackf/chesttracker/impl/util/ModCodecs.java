@@ -13,7 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import red.jackf.jackfredlib.api.base.codecs.JFLCodecs;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.codecs.JFLCodecs;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +31,7 @@ public class ModCodecs {
     public static final Codec<ItemStack> OPTIONAL_ITEMSTACK_UNCAPPED_SIZE = ExtraCodecs.<ItemStack>optionalEmptyMap(Codec.lazyInitialized(
             () -> RecordCodecBuilder.create(
                     instance -> instance.group(
-                            Item.CODEC.fieldOf("id").forGetter(ItemStack::getItemHolder),
+                            Item.CODEC.fieldOf("id").forGetter(ItemStack::typeHolder),
                             ExtraCodecs.POSITIVE_INT.fieldOf("count").orElse(1).forGetter(ItemStack::getCount),
                             DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(ItemStack::getComponentsPatch)
                     ).apply(instance, ItemStack::new)

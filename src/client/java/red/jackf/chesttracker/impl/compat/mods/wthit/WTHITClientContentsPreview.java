@@ -1,5 +1,6 @@
 package red.jackf.chesttracker.impl.compat.mods.wthit;
 
+import net.minecraft.client.Minecraft;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemListComponent;
 import mcp.mobius.waila.api.data.ItemData;
@@ -34,7 +35,7 @@ public enum WTHITClientContentsPreview implements IBlockComponentProvider {
             var stacks = ItemStacks.flattenStacks(memory.get().items(), true);
             tooltip.setLine(ItemData.ID, new ItemListComponent(stacks, config.getInt(ItemData.CONFIG_MAX_HEIGHT)));
 
-            if (Screen.hasShiftDown() && config.getBoolean(ChestTrackerWTHITPlugin.CONFIG_SHOW_TEXT)) {
+            if (Minecraft.getInstance().hasShiftDown() && config.getBoolean(ChestTrackerWTHITPlugin.CONFIG_SHOW_TEXT)) {
                 tooltip.addLine(translatable("chesttracker.compatibility.brand", translatable("chesttracker.title").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY));
             }
 

@@ -1,31 +1,36 @@
 package red.jackf.chesttracker.impl.gui.widget;
 
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.CharacterEvent;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.chesttracker.mixins.AbstractWidgetAccessor;
 
 /**
- * Wrapper for a widget that renders it with a Z offset on the screen.
+ * Wrapper that draws a widget above the rest of the screen.
+ *
+ * <p>Before 26.x this applied a Z translation, hence the name. The 26.x GUI pose stack is a 2D
+ * {@code Matrix3x2fStack} with no Z, so layering is now expressed by advancing to the next
+ * stratum instead.</p>
  */
 public class WidgetZOffsetWrapper<T extends AbstractWidget> extends AbstractWidget {
     private final T baseWidget;
-    private final int zOffset;
 
-    public WidgetZOffsetWrapper(T baseWidget, int zOffset) {
+    public WidgetZOffsetWrapper(T baseWidget) {
         super(baseWidget.getX(), baseWidget.getY(), baseWidget.getWidth(), baseWidget.getHeight(), baseWidget.getMessage());
         this.baseWidget = baseWidget;
-        this.zOffset = zOffset;
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, zOffset);
-        ((AbstractWidgetAccessor) baseWidget).renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.pose().popPose();
+    public void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        // 26.x pose is a 2D Matrix3x2fStack with no Z, so depth ordering is expressed with
+        // strata instead of a Z translation.
+        guiGraphics.nextStratum();
+        ((AbstractWidgetAccessor) baseWidget).extractWidgetRenderState(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
@@ -46,18 +51,26 @@ public class WidgetZOffsetWrapper<T extends AbstractWidget> extends AbstractWidg
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return baseWidget.keyPressed(keyCode, scanCode, modifiers);
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
+        return baseWidget.keyPressed(event);
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        return baseWidget.keyReleased(keyCode, scanCode, modifiers);
+    public boolean keyReleased(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
+        return baseWidget.keyReleased(event);
     }
 
     @Override
-    public boolean charTyped(char codePoint, int modifiers) {
-        return baseWidget.charTyped(codePoint, modifiers);
+    public boolean charTyped(CharacterEvent event) {
+        char codePoint = (char) event.codepoint();
+        int modifiers = 0;
+        return baseWidget.charTyped(event);
     }
 
     @Nullable

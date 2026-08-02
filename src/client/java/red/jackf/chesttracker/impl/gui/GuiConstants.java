@@ -1,6 +1,7 @@
 package red.jackf.chesttracker.impl.gui;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -36,7 +37,7 @@ public interface GuiConstants {
         final var list = new ArrayList<Item>(BuiltInRegistries.ITEM.size());
         list.addAll(List.of(
                 Items.CRAFTING_TABLE, Items.GRASS_BLOCK, Items.NETHERRACK, Items.END_STONE,
-                Items.CHEST, Items.ENDER_CHEST, Items.OAK_SAPLING, Items.RED_BED,
+                Items.CHEST, Items.ENDER_CHEST, Items.OAK_SAPLING, Items.BED.pick(DyeColor.RED),
                 Items.DIAMOND_ORE, Items.GLOWSTONE, Items.NETHER_STAR, Items.STONE, Items.GOLD_BLOCK
         ));
         list.addAll(BuiltInRegistries.ITEM.stream().filter(item -> !list.contains(item) && item != Items.AIR).toList());

@@ -1,15 +1,17 @@
 package red.jackf.chesttracker.impl.gui.invbutton.ui;
 
-import net.minecraft.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Util;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -42,19 +44,21 @@ public class SecondaryButton extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation texture = getSprites().get(this.isActive(), this.isHoveredOrFocused());
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        Identifier texture = getSprites().get(this.isActive(), this.isHoveredOrFocused());
 
         long tweenTime = this.buttonIndex * TWEEN_TIME;
         float factor = Mth.clamp((float) (Util.getMillis() - startTweenTime) / tweenTime, 0, 1);
         int x = Mth.lerpDiscrete(factor, this.startX - 1, this.getX() - 1);
         int y = Mth.lerpDiscrete(factor, this.startY - 1, this.getY() - 1);
 
-        graphics.blitSprite(RenderType::guiTextured, texture, x, y, InventoryButton.IMAGE_SIZE, InventoryButton.IMAGE_SIZE);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture, x, y, InventoryButton.IMAGE_SIZE, InventoryButton.IMAGE_SIZE);
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
         onClick.run();
     }
 

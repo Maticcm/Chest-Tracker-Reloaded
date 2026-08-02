@@ -1,19 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "chesttracker",
+  "id": "chesttrackerreloaded",
   "version": "${version}",
   "name": "Chest Tracker",
-  "description": "Client-side storage management and searching.",
+  "description": "Client-side storage management and searching. Unofficial fork of JackFred's Chest Tracker, updated for Minecraft 26.x.",
   "authors": [
-    "JackFred"
+    "JackFred (original Chest Tracker)",
+    "Maticcm (26.x fork maintainer)"
   ],
   "contributors": [
     "WinTone01 - Turkish Translations "
   ],
   "contact": {
-    "homepage": "https://modrinth.com/mod/chest-tracker",
-    "sources": "https://github.com/JackFred2/ChestTracker",
-    "issues": "https://github.com/JackFred2/ChestTracker/issues"
+    "homepage": "https://github.com/Maticcm/Chest-Tracker-Reloaded",
+    "sources": "https://github.com/Maticcm/Chest-Tracker-Reloaded",
+    "issues": "https://github.com/Maticcm/Chest-Tracker-Reloaded/issues"
   },
   "license": "LGPL-3.0-only",
   "icon": "assets/chesttracker/icon.png",
@@ -28,9 +29,6 @@
     "modmenu": [
       "red.jackf.chesttracker.impl.compat.mods.ChestTrackerModMenu"
     ],
-    "whereisit_client": [
-      "red.jackf.chesttracker.impl.compat.mods.ChestTrackerWhereIsItPlugin"
-    ],
     "shulkerboxtooltip": [
       "red.jackf.chesttracker.impl.compat.mods.shulkerboxtooltip.ChestTrackerShulkerBoxTooltip"
     ],
@@ -42,26 +40,31 @@
     {
       "config": "chesttracker.mixins.json",
       "environment": "client"
+    },
+    {
+      "config": "chesttracker-vendor.mixins.json",
+      "environment": "client"
     }
   ],
   "accessWidener": "chesttracker.accesswidener",
   "custom": {
     "modmenu": {
       "links": {
-        "modmenu.curseforge": "https://www.curseforge.com/minecraft/mc-mods/chest-tracker",
-        "modmenu.github_releases": "https://github.com/JackFred2/ChestTracker/releases",
-        "modmenu.wiki": "https://docs.jackf.red/chest-tracker",
-        "modmenu.donate": "https://ko-fi.com/jackfred"
+        "modmenu.github_releases": "https://github.com/Maticcm/Chest-Tracker-Reloaded/releases",
+        "modmenu.wiki": "https://docs.jackf.red/chest-tracker"
       }
     }
   },
   "depends": {
-    "fabricloader": ">=0.15.0",
-    "minecraft": ">=1.21.2",
-    "java": ">=21",
+    "fabricloader": ">=0.19.0",
+    "minecraft": ">=26.1",
+    "java": ">=25",
     "fabric-api": "*",
-    "yet_another_config_lib_v3": ">=3.6.0",
-    "whereisit": ">=2.6.1"
+    "yet_another_config_lib_v3": ">=3.9.0"
+  },
+  "breaks": {
+    "chesttracker": "*",
+    "whereisit": "*"
   },
   "recommends": {
     "searchables": "*"

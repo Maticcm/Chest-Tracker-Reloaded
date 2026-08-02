@@ -1,2 +1,7 @@
-accessWidener	v2	named
+accessWidener	v2	official
 accessible method net/minecraft/client/gui/components/tabs/TabNavigationBar currentTabIndex ()I
+
+# 26.x tightened access on these; the search layer reads the hovered slot to build a
+# search request, and checks the creative search box to know when to ignore keybinds.
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen hoveredSlot Lnet/minecraft/world/inventory/Slot;
+accessible field net/minecraft/client/gui/screens/inventory/CreativeModeInventoryScreen searchBox Lnet/minecraft/client/gui/components/EditBox;

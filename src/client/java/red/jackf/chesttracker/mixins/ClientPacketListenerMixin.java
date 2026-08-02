@@ -11,14 +11,12 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import red.jackf.chesttracker.api.providers.ProviderUtils;
 
-@Debug(export = true)
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl {
     protected ClientPacketListenerMixin(Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
@@ -26,8 +24,10 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         throw new AssertionError("mixin apply failed");
     }
 
+    // 26.x changed the third parameter of ensureRunningOnSameThread from BlockableEventLoop
+    // to net.minecraft.network.PacketProcessor.
     @Inject(method = "handleRespawn", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/util/thread/BlockableEventLoop;)V",
+            target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/network/PacketProcessor;)V",
             shift = At.Shift.AFTER))
     private void getDimensionChange(ClientboundRespawnPacket packet,
                                     CallbackInfo ci,

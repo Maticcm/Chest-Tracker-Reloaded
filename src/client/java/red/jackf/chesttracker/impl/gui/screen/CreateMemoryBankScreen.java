@@ -14,7 +14,7 @@ import red.jackf.chesttracker.impl.memory.MemoryBankAccessImpl;
 import red.jackf.chesttracker.impl.storage.Storage;
 import red.jackf.chesttracker.impl.util.GuiUtil;
 import red.jackf.chesttracker.impl.util.Strings;
-import red.jackf.jackfredlib.client.api.gps.Coordinate;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.Coordinate;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -210,6 +210,6 @@ public class CreateMemoryBankScreen extends BaseUtilScreen {
     }
 
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 }

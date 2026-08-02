@@ -6,7 +6,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.util.Mth;
 import red.jackf.chesttracker.impl.gui.invbutton.CTButtonScreenDuck;
 import red.jackf.chesttracker.impl.gui.invbutton.ui.InventoryButton;
-import red.jackf.jackfredlib.api.base.codecs.JFLCodecs;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.codecs.JFLCodecs;
 
 public record ButtonPosition(HorizontalAlignment xAlign, int xOffset, VerticalAlignment yAlign, int yOffset) {
     public static final Codec<ButtonPosition> CODEC = RecordCodecBuilder.create(

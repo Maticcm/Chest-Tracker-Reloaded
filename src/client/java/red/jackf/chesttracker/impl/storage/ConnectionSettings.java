@@ -5,8 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.chesttracker.impl.util.Constants;
 import red.jackf.chesttracker.impl.util.FileUtil;
-import red.jackf.jackfredlib.api.base.codecs.JFLCodecs;
-import red.jackf.jackfredlib.client.api.gps.Coordinate;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.codecs.JFLCodecs;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.Coordinate;
 
 import java.nio.file.Path;
 import java.util.HashMap;

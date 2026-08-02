@@ -7,12 +7,12 @@ import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.io.FileUtils;
 import red.jackf.chesttracker.impl.compat.Compatibility;
 import red.jackf.chesttracker.impl.gui.GuiConstants;
@@ -23,7 +23,6 @@ import red.jackf.chesttracker.impl.storage.backend.Backend;
 import red.jackf.chesttracker.impl.util.Constants;
 import red.jackf.chesttracker.impl.util.GuiUtil;
 import red.jackf.chesttracker.impl.util.Strings;
-import red.jackf.whereisit.client.WhereIsItConfigScreenBuilder;
 
 import java.nio.file.Files;
 import java.util.Locale;
@@ -52,19 +51,19 @@ public class ChestTrackerConfigScreenBuilder {
     ///////////
     // UTILS //
     ///////////
-    private static ResourceLocation getDescriptionImage(String basePath, boolean value) {
+    private static Identifier getDescriptionImage(String basePath, boolean value) {
         return GuiUtil.sprite("textures/gui/config/%s_%s.png".formatted(basePath, value ? "enabled" : "disabled"));
     }
 
-    private static ResourceLocation getDescriptionImage(String basePath) {
+    private static Identifier getDescriptionImage(String basePath) {
         return GuiUtil.sprite("textures/gui/config/%s.png".formatted(basePath));
     }
 
     private static void refreshConfigScreen(Screen parent) {
-        if (Minecraft.getInstance().screen instanceof YACLScreen yacl1) {
+        if (Minecraft.getInstance().gui.screen() instanceof YACLScreen yacl1) {
             var currentIndex = yacl1.tabNavigationBar.currentTabIndex();
-            Minecraft.getInstance().setScreen(build(parent));
-            if (Minecraft.getInstance().screen instanceof YACLScreen yacl2)
+            Minecraft.getInstance().gui.setScreen(build(parent));
+            if (Minecraft.getInstance().gui.screen() instanceof YACLScreen yacl2)
                 yacl2.tabNavigationBar.selectTab(currentIndex, false);
         }
     }
@@ -313,11 +312,8 @@ public class ChestTrackerConfigScreenBuilder {
                                 () -> instance.instance().rendering.nameRange,
                                 i -> instance.instance().rendering.nameRange = i
                         ).build())
-                .option(ButtonOption.createBuilder()
-                        .name(translatable("chesttracker.config.whereisit"))
-                        .description(OptionDescription.of(translatable("chesttracker.config.whereisit.description")))
-                        .text(translatable("chesttracker.gui.open"))
-                        .action((yaclScreen, button) -> Minecraft.getInstance().setScreen(WhereIsItConfigScreenBuilder.build(yaclScreen))).build())
+                // The "Where Is It settings" button is gone - that mod's search/highlight behaviour
+                // is now built in, so there is no separate config screen to open. See PORTING.md.
                 .build();
     }
 
@@ -361,10 +357,10 @@ public class ChestTrackerConfigScreenBuilder {
                         .text(translatable("chesttracker.config.open"))
                         .action(((screen, option) -> {
                             Runnable lambda = () -> {
-                                Minecraft.getInstance().setScreen(screen);
+                                Minecraft.getInstance().gui.setScreen(screen);
                                 refreshConfigScreen(parent);
                             };
-                            Minecraft.getInstance().setScreen(new MemoryBankManagerScreen(lambda, lambda));
+                            Minecraft.getInstance().gui.setScreen(new MemoryBankManagerScreen(lambda, lambda));
                         }))
                         .build());*/
 
@@ -567,7 +563,7 @@ public class ChestTrackerConfigScreenBuilder {
                     }).build());
         }
 
-        Minecraft.getInstance().setScreen(YetAnotherConfigLib.createBuilder()
+        Minecraft.getInstance().gui.setScreen(YetAnotherConfigLib.createBuilder()
                 .title(translatable("chesttracker.config.inventoryButton.manageCustom"))
                 .category(category.build())
                 .build()

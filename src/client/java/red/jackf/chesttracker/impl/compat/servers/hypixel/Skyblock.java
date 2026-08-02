@@ -4,11 +4,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
 import red.jackf.chesttracker.api.providers.context.ScreenCloseContext;
-import red.jackf.jackfredlib.client.api.gps.PlayerListSnapshot;
-import red.jackf.jackfredlib.client.api.gps.ScoreboardSnapshot;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.PlayerListSnapshot;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.ScoreboardSnapshot;
 
 import java.util.List;
 import java.util.Objects;
@@ -99,12 +100,14 @@ interface Skyblock {
 
     private static boolean isMenuButton(ItemStack stack) {
         var name = stack.getHoverName().getString();
-        return (stack.is(Items.BLACK_STAINED_GLASS_PANE) && name.isBlank())
+        // 26.2 groups the per-colour item variants into a ColorCollection; the individual items
+        // still exist and are reached with pick(DyeColor), so this matches exactly as before.
+        return (stack.is(Items.STAINED_GLASS_PANE.pick(DyeColor.BLACK)) && name.isBlank())
                 || (stack.is(Items.PLAYER_HEAD) && name.contains("Page"))
                 || (stack.is(Items.ARROW) && name.contains("Back"))
                 || (stack.is(Items.CAULDRON) && name.contains("Pickup"))
                 || (stack.is(Items.CHEST) && name.contains("Insert"))
-                || (stack.is(Items.GRAY_DYE))
+                || (stack.is(Items.DYE.pick(DyeColor.GRAY)))
                 || (stack.is(Items.ENDER_EYE) && name.contains("Filter"))
                 || (stack.is(Items.BARRIER) && name.contains("Close"));
     }

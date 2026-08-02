@@ -17,10 +17,10 @@ import red.jackf.chesttracker.impl.rendering.NameRenderMode;
 import red.jackf.chesttracker.impl.util.ItemStacks;
 import red.jackf.chesttracker.impl.util.Misc;
 import red.jackf.chesttracker.impl.util.ModCodecs;
-import red.jackf.jackfredlib.api.base.codecs.JFLCodecs;
-import red.jackf.whereisit.api.SearchRequest;
-import red.jackf.whereisit.api.SearchResult;
-import red.jackf.whereisit.api.search.NestedItemsGrabber;
+import red.jackf.chesttracker.vendor.jackfredlib.api.base.codecs.JFLCodecs;
+import red.jackf.chesttracker.impl.search.SearchRequest;
+import red.jackf.chesttracker.impl.search.SearchResult;
+import red.jackf.chesttracker.impl.search.NestedItemsGrabber;
 
 import java.util.*;
 import java.util.stream.Stream;

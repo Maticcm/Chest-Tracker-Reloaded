@@ -2,12 +2,16 @@ package red.jackf.chesttracker.impl.gui.widget;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.InputWithModifiers;
 import org.jetbrains.annotations.NotNull;
 import red.jackf.chesttracker.impl.config.custom.HoldToConfirmActionController;
 
@@ -31,7 +35,7 @@ public class HoldToConfirmButton extends AbstractButton {
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         playDownSound(getPitch());
         callback.accept(this);
     }
@@ -41,8 +45,11 @@ public class HoldToConfirmButton extends AbstractButton {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+    protected void extractContents(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        // Draws the vanilla button background. Must NOT call super.extractWidgetRenderState here:
+        // AbstractButton.extractWidgetRenderState is final and dispatches straight back into
+        // extractContents, which recurses until StackOverflowError.
+        extractDefaultSprite(graphics);
         if (progress > 0f)
             graphics.fill(getX() + 1,
                     getY() + 1,
@@ -52,7 +59,7 @@ public class HoldToConfirmButton extends AbstractButton {
         if (!held.isEmpty()) {
             progress = Math.min(holdToActivateTime, progress + partialTick);
             if (progress == holdToActivateTime) {
-                this.onPress();
+                this.onPress(null);
                 progress = 0f;
                 progressTicks = 0;
             }
@@ -68,7 +75,10 @@ public class HoldToConfirmButton extends AbstractButton {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (isMouseOver(mouseX, mouseY) && active) {
             playDownSound(1f);
             held.add(-1);
@@ -78,9 +88,12 @@ public class HoldToConfirmButton extends AbstractButton {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         held.remove(-1);
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
@@ -94,7 +107,10 @@ public class HoldToConfirmButton extends AbstractButton {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
         if (!isFocused()) {
             return false;
         }
@@ -109,11 +125,14 @@ public class HoldToConfirmButton extends AbstractButton {
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+    public boolean keyReleased(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
         if (isActivationKeybind(keyCode)) {
             held.remove(keyCode);
         }
-        return super.keyReleased(keyCode, scanCode, modifiers);
+        return super.keyReleased(event);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package red.jackf.chesttracker.api.memory;
 
 import red.jackf.chesttracker.impl.memory.MemoryBankAccessImpl;
-import red.jackf.jackfredlib.client.api.gps.Coordinate;
+import red.jackf.chesttracker.vendor.jackfredlib.client.api.gps.Coordinate;
 
 import java.util.Optional;
 

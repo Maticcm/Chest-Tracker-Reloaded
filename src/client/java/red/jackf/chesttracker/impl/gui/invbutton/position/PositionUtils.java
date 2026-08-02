@@ -1,5 +1,6 @@
 package red.jackf.chesttracker.impl.gui.invbutton.position;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -59,7 +60,7 @@ public interface PositionUtils {
         mouseX = Mth.clamp(mouseX, RectangleUtils.SCREEN_MARGIN, screen.width - RectangleUtils.SCREEN_MARGIN - InventoryButton.SIZE);
         mouseY = Mth.clamp(mouseY, RectangleUtils.SCREEN_MARGIN, screen.height - RectangleUtils.SCREEN_MARGIN - InventoryButton.SIZE);
 
-        if (!Screen.hasShiftDown()) {
+        if (!Minecraft.getInstance().hasShiftDown()) {
             // don't allow in recipe book
             Set<ScreenRectangle> collisions = RectangleUtils.getCollidersFor(screen);
 
