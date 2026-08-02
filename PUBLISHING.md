@@ -120,12 +120,44 @@ Optionally keep upstream for merging future fixes:
 git remote add upstream https://github.com/JackFred2/ChestTracker
 ```
 
-## 8. Deliberately not automated
+## 8. CI and release automation
 
-Upstream's release automation (GitHub Releases, Modrinth, CurseForge via `mod-publish-plugin`) was
-**removed**, along with `buildSrc`. It was hardcoded to JackFred's project IDs — Modrinth
-`ni4SrKmq`, CurseForge `397217` — so leaving it in place risked a stray `RELEASE=1` build uploading
-this fork to the original author's project pages.
+Two workflows in `.github/workflows/`:
 
-Uploads are therefore manual. If you later want automation, wire it to **your own** project IDs and
-supply tokens via environment variables, never committed.
+| Workflow | Trigger | Does |
+|---|---|---|
+| `build.yml` | every push and PR | Builds on Linux + Windows with JDK 25, uploads jars as artifacts |
+| `release.yml` | pushing a `v*` tag | Builds and creates a GitHub Release with both jars attached |
+
+### Cutting a release
+
+```bash
+# 1. bump mod_version in gradle.properties, write changelogs/<version>.md
+# 2. commit
+git tag v3.0.0
+git push origin v3.0.0
+```
+
+The workflow **fails deliberately** if the tag does not match `mod_version` in `gradle.properties`
+— that guard exists because tagging `v3.0.1` while the properties file still says `3.0.0` would
+otherwise publish a jar whose filename disagrees with its release. It uses
+`changelogs/<version>.md` as the release notes if present, else auto-generates them.
+
+### What is deliberately *not* automated
+
+**Modrinth and CurseForge uploads remain manual.** Upstream's automation was removed along with
+`buildSrc`, because it was hardcoded to JackFred's project IDs — Modrinth `ni4SrKmq`, CurseForge
+`397217` — and a stray `RELEASE=1` build could have pushed this fork onto the original author's
+project pages.
+
+If you want distributor publishing later, wire it to **your own** project IDs with tokens supplied
+as repository secrets, never committed.
+
+### Security notes
+
+- Both workflows run `gradle/actions/wrapper-validation`, so a tampered `gradle-wrapper.jar` cannot
+  execute arbitrary code in CI.
+- `build.yml` has read-only permissions; `release.yml` gets `contents: write`, scoped to this
+  repository, and uses only the automatic `GITHUB_TOKEN`.
+- The release step uses the preinstalled GitHub CLI rather than a third-party action, so no external
+  code touches your release process.
